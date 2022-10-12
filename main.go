@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	"strings"
+	"zipsa.chat.server/chat"
 	"zipsa.chat.server/zlog"
 )
 
@@ -10,17 +10,17 @@ var log = zlog.Instance()
 
 func main() {
 	forever := make(chan bool)
-	http.HandleFunc("/hello", hello)
+	http.HandleFunc("/hello", receiveMail)
 
 	http.ListenAndServe(":8088", nil)
 	<-forever
 }
 
-func hello(w http.ResponseWriter, req *http.Request) {
-	if strings.Compare("GET", req.Method) != 0 {
-		w.Write([]byte("Connection Error!!!"))
-		return
-	}
+func receiveMail(w http.ResponseWriter, req *http.Request) {
+
+	mail := chat.GetChatRequest(w, req)
+	log.Infof("%+v", mail)
+
 	log.Infof("%s", req.Method)
 	log.Infof("%s", req.Header)
 	log.Infof("%s", req.Body)
@@ -28,5 +28,5 @@ func hello(w http.ResponseWriter, req *http.Request) {
 	log.Infof("%s", req.RemoteAddr)
 	log.Infof("%s", req.RequestURI)
 	log.Infof("%s", req.Host)
-	w.Write([]byte("Hello World"))
+
 }

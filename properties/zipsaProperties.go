@@ -15,6 +15,7 @@ func init() {
 var zipsaPropInstance *zipsaProp
 
 type zipsaProp struct {
+	dbUserInfoFetchCycleMS  uint
 	rabbitmqHost            string
 	rabbitmqPort            string
 	rabbitmqVirtualhost     string
@@ -38,11 +39,13 @@ func initProperties() *zipsaProp {
 
 	if zipsaPropInstance == nil {
 		p := properties.MustLoadFiles([]string{
+			fmt.Sprintf("conf/%s/db.properties", Profile),
 			fmt.Sprintf("conf/%s/log.properties", Profile),
 			fmt.Sprintf("conf/%s/rabbitmq.properties", Profile),
 		}, properties.UTF8, false)
 
 		zipsaPropInstance = &zipsaProp{
+			p.MustGetUint("db.user-info.fetch-cycle-ms"),
 			p.MustGetString("rabbitmq.host"),
 			p.MustGetString("rabbitmq.port"),
 			p.MustGetString("rabbitmq.virtualhost"),
@@ -70,6 +73,7 @@ func initProperties() *zipsaProp {
 
 func printProperties() {
 	log.Printf("Profile = %s", Profile)
+	log.Printf("db.user-info.fetch-cycle-ms = %d", GetDBUserInfoFethCycleMS())
 	log.Printf("rabbitmq.host = %s", GetRabbitmqHost())
 	log.Printf("rabbitmq.port = %s", GetRabbitmqPort())
 	log.Printf("rabbitmq.virtualhost = %s", GetRabbitmqVirtualhost())
@@ -87,6 +91,10 @@ func printProperties() {
 	log.Printf("rabbitmq.retry-cnt = %d", GetRabbitmqRetryCnt())
 	log.Printf("log.level = %s", GetLogLevel())
 	log.Printf("log.out = %s", GetLogOut())
+}
+
+func GetDBUserInfoFethCycleMS() uint {
+	return zipsaPropInstance.dbUserInfoFetchCycleMS
 }
 
 func GetRabbitmqHost() string {
